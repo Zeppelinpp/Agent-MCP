@@ -1,6 +1,6 @@
 from typing import Any
 from dotenv import load_dotenv
-import serpapi
+from serpapi import GoogleSearch
 import httpx, os
 from mcp.server.fastmcp import FastMCP
 
@@ -13,19 +13,20 @@ mcp = FastMCP("websearch")
 SEARCH_API_KEY = os.getenv("SEARCH_API_KEY")
 
 @mcp.tool()
-def get_general_search(query: str, mode: str = "safe"):
+def get_general_search(query: str):
     """Search information on Google, search mode is safe or off"""
     params = {
         "engine": "google_light",
         "q": query,
         "google_domain": "google.com",
         "hl": "en",
-        "safe": mode,
+        "safe": "off",
         "num": 5,
-        "api_key": "92df349c4f382ed7d4a1394bf45f9433b04629702ac6267758d727954607ef07",
+        "api_key": SEARCH_API_KEY,
     }
 
-    result = serpapi.search(params).get_dict()
+    result = GoogleSearch(params).get_dict()
+    print(result)
     try:
         if result["organic_results"]:
             general_result = result["organic_results"]
@@ -34,7 +35,7 @@ def get_general_search(query: str, mode: str = "safe"):
         return False
     
 @mcp.tool()
-def get_image_search(query: str, mode: str = "safe"):
+def get_image_search(query: str):
     """Search images on Google, search mode is safe or off"""
     
     params = {
@@ -42,12 +43,12 @@ def get_image_search(query: str, mode: str = "safe"):
         "q": query,
         "google_domain": "google.com",
         "hl": "en",
-        "safe": mode,
+        "safe": "off",
         "num": 20,
         "api_key": SEARCH_API_KEY,
     }
 
-    result = serpapi.search(params).get_dict()
+    result = GoogleSearch(params).get_dict()
     try:
         if result["images_results"]:
             image_result = result["images_results"][:20]
@@ -56,19 +57,19 @@ def get_image_search(query: str, mode: str = "safe"):
         return False
 
 @mcp.tool()
-def get_video_search(query: str, mode: str = "safe"):
+def get_video_search(query: str):
     """Search videos on Google, search mode is safe or off"""
     params = {
         "engine": "google_videos",
         "q": query,
         "google_domain": "google.com",
         "hl": "en",
-        "safe": mode,
+        "safe": "off",
         "num": 20,
         "api_key": SEARCH_API_KEY,
     }
 
-    result = serpapi.search(params).get_dict()
+    result = GoogleSearch(params).get_dict()
     try:
         if result["videos_results"]:
             video_result = result["videos_results"][:20]
