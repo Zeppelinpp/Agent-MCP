@@ -6,3 +6,5 @@ local mcp server-client agent
 
 ## MCP Client
 本地MCP Client, 实现调用本地部署的MCP Server和调用外部平台Simthery提供的公开MCP Server服务, [Simthery平台](https://smithery.ai/)
+参考[Antropic MCP Client Quick Start](https://modelcontextprotocol.io/quickstart/client) 修改调用接口（原文使用Anthropic API）为OpenAI的接口并调整后处理流程，增加一些Json validation
+测试使用Qwen2.5系列模型和DeepSeek-V3效果都比较稳定
