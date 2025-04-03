@@ -12,16 +12,18 @@ mcp = FastMCP("websearch")
 # SEARCH_API_KEY
 SEARCH_API_KEY = os.getenv("SEARCH_API_KEY")
 
+
 @mcp.tool()
 def get_general_search(query: str):
     """Search information on Google, search mode is safe or off"""
+    print(f"Running General Search for {query}")
     params = {
         "engine": "google_light",
         "q": query,
         "google_domain": "google.com",
         "hl": "en",
         "safe": "off",
-        "num": 5,
+        "num": 10,
         "api_key": SEARCH_API_KEY,
     }
 
@@ -33,17 +35,19 @@ def get_general_search(query: str):
             return general_result
     except:
         return False
-    
+
+
 @mcp.tool()
 def get_image_search(query: str):
     """Search images on Google, search mode is safe or off"""
-    
+    print(f"Running Image Search for {query}")
     params = {
         "engine": "google_images",
         "q": query,
         "google_domain": "google.com",
         "hl": "en",
         "safe": "off",
+        "filter": 0,
         "num": 20,
         "api_key": SEARCH_API_KEY,
     }
@@ -56,26 +60,42 @@ def get_image_search(query: str):
     except:
         return False
 
+
 @mcp.tool()
 def get_video_search(query: str):
     """Search videos on Google, search mode is safe or off"""
+    print(f"Running Video Search for {query}")
+    # params = {
+    #     "api_key": SEARCH_API_KEY,
+    #     "engine": "google_videos",
+    #     "google_domain": "google.com",
+    #     "q": query,
+    #     "gl": "us",
+    #     "hl": "en",
+    #     "safe": "off",
+    #     "num": "20",
+    #     "location": "United States",
+    #     "filter": "0",
+    # }
+    
     params = {
+        "api_key": SEARCH_API_KEY,
         "engine": "google_videos",
-        "q": query,
         "google_domain": "google.com",
+        "q": query,
+        "gl": "us",
         "hl": "en",
         "safe": "off",
-        "num": 20,
-        "api_key": SEARCH_API_KEY,
+        "num": "20",
+        "location": "United States",
+        "filter": "0",
     }
 
     result = GoogleSearch(params).get_dict()
-    try:
-        if result["videos_results"]:
-            video_result = result["videos_results"][:20]
-            return video_result
-    except:
-        return False
-    
+    print(result.keys())
+
+
 if __name__ == "__main__":
-    mcp.run(transport="stdio")
+    test = get_video_search("Lisa Ann porn")
+    print(test)
+    # mcp.run(transport="stdio")
