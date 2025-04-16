@@ -1,4 +1,6 @@
 import asyncio, os
+import smithery
+import mcp
 from dotenv import load_dotenv
 from agents import (
     Agent,
@@ -11,15 +13,15 @@ from agents import (
     ToolCallItem,
     ToolCallOutputItem,
 )
-import smithery
-import mcp
 from mcp.client.websocket import websocket_client
 from agents.mcp import MCPServer, MCPServerStdio, MCPServerSse
+
 
 load_dotenv()
 MODEL = os.getenv("OLLAMA_MODEL")
 SMITHERY_API_KEY = os.getenv("SMITHERY_API_KEY")
-
+LOCAL_SERVER_PATH = os.getenv("LOCAL_SERVER_PATH")
+SMITHERY_SERVER_PATH = os.getenv("SMITHERY_SERVER_PATH")
 set_tracing_disabled(disabled=True)
 
 
@@ -56,7 +58,7 @@ async def local_server():
         name="Web Search Server, via python",
         params={
             "command": "python",
-            "args": ["/home/purui/projects/Agent-MCP/mcp-server/web_search.py"],
+            "args": [LOCAL_SERVER_PATH],
         },
     ) as server:
         tools = await server.list_tools()
@@ -75,7 +77,7 @@ async def smithery_server():
         name="Web Search Server, via GoGoDuck Search",
         params={
             "command": "python",
-            "args": ["/home/purui/miniconda3/envs/vllm/lib/python3.10/site-packages/duckduckgo_mcp_server/server.py"]
+            "args": [SMITHERY_SERVER_PATH]
         }
     ) as server:
         tools = await server.list_tools()

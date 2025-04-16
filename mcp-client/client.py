@@ -9,7 +9,7 @@ from mcp.client.stdio import stdio_client
 from openai import OpenAI
 from dotenv import load_dotenv
 
-load_dotenv()  # load environment variables from .env
+load_dotenv()
 
 class MCPClient:
     def __init__(self):
@@ -20,7 +20,7 @@ class MCPClient:
             api_key="dummy",
             base_url="http://localhost:11434/v1",
         )
-    # methods will go here
+    # connect mcp server
     async def connect_to_server(self, server_script_path: str):
         """Connect to an MCP server
 
@@ -70,7 +70,7 @@ class MCPClient:
             }
         } for tool in response.tools]
 
-        # Initial LLM API call
+        # LLM call
         response = self.openai.chat.completions.create(
             model="huihui_ai/qwen2.5-1m-abliterated:14b-instruct-q8_0",
             max_tokens=1000,
@@ -137,22 +137,21 @@ class MCPClient:
                 
                 print(f"Response received: {response}")  # Debug the response
                 
-                # Make sure we capture the model's final answer
+                # get final answer
                 if hasattr(response.choices[0].message, 'content') and response.choices[0].message.content:
                     final_answer = response.choices[0].message.content
                     final_text.append(final_answer)
-                    print(f"Added to final_text: {final_answer}")  # Debug what's being added
+                    print(f"Added to final_text: {final_answer}")
         else:
             # Simple text response with no tool calls
             if response.choices[0].message.content:
                 final_text.append(response.choices[0].message.content)
         
-        # Make sure we have something to return, even if final_text is empty
         if not final_text:
             return "No response generated. There might be an issue with the model's response."
         
         result = "\n".join(final_text)
-        print(f"Final result: {result}")  # Debug the final result
+        print(f"Final result: {result}") # log out final result
         return result
     async def chat_loop(self):
         """Run an interactive chat loop"""
