@@ -1,5 +1,5 @@
 def main():
-    print("Hello from websearch!")
+    print("Hello from agent-mcp!")
 
 
 if __name__ == "__main__":

@@ -1,6 +1,5 @@
 import asyncio, os
-import smithery
-import mcp
+import smithery, json
 from dotenv import load_dotenv
 from agents import (
     Agent,
@@ -19,6 +18,7 @@ from agents.mcp import MCPServer, MCPServerStdio, MCPServerSse
 
 load_dotenv()
 MODEL = os.getenv("OLLAMA_MODEL")
+DS_KEY = os.getenv("DS_KEY")
 SMITHERY_API_KEY = os.getenv("SMITHERY_API_KEY")
 LOCAL_SERVER_PATH = os.getenv("LOCAL_SERVER_PATH")
 SMITHERY_SERVER_PATH = os.getenv("SMITHERY_SERVER_PATH")
@@ -27,10 +27,10 @@ set_tracing_disabled(disabled=True)
 
 async def run(server: MCPServer, query: str):
     model = OpenAIChatCompletionsModel(
-        model=MODEL,
+        model="deepseek-chat",
         openai_client=AsyncOpenAI(
-            base_url="http://localhost:11434/v1",
-            api_key="dummy",
+            base_url="https://api.deepseek.com/",
+            api_key=DS_KEY,
         ),
     )
     agent = Agent(
@@ -40,18 +40,21 @@ async def run(server: MCPServer, query: str):
         model=model,
     )
 
-    print(f"Running query < {query}")
+    print(f"Running query: {query}")
     result = await Runner.run(starting_agent=agent, input=query, max_turns=5)
     for item in result.new_items:
         if isinstance(item, ToolCallItem):
-            print(f"Tool call: {item.raw_item}")
+            print(f"Call Tool: {item.raw_item.name} with args: {item.raw_item.arguments}")
+            await asyncio.sleep(0.05)
         if isinstance(item, ToolCallOutputItem):
-            print(f"Tool call output: {item.raw_item}")
+            text = json.loads(item.output)["text"]
+            print(f"Tool call output: {text[:100]} ...")
+            await asyncio.sleep(0.05)
         if isinstance(item, MessageOutputItem):
             text = ItemHelpers.text_message_output(item)
             if text:
                 print(f"Running step: {text}")
-
+                await asyncio.sleep(0.05)
 
 async def local_server():
     async with MCPServerStdio(
@@ -65,7 +68,7 @@ async def local_server():
         print(f"Connected to server with tools: {tools}")
         await run(
             server,
-            "I want porn video links of Alexis Texas, show me the url and the title of the video",
+            "I want detailed information about the latest news of CNN, Fox today.",
         )
 
 
@@ -84,8 +87,8 @@ async def smithery_server():
         print(f"Connected to server with tools: {tools}")
         await run(
             server,
-            "I want porn video links of Alexis Texas, show me the url and the title of the video",
+            "I want detailed information about the latest news of CNN, Fox today.",
         )
 
 if __name__ == "__main__":
-    asyncio.run(smithery_server())
+    asyncio.run(local_server())
