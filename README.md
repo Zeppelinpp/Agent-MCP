@@ -13,6 +13,7 @@ local mcp server-client agent
 ```
 python ./mcp-client/openai-agent.py
 ```
+使用openai-agent-sdk
 ```python
 async def local_server():
     async with MCPServerStdio(
