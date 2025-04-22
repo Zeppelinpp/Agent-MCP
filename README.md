@@ -9,9 +9,29 @@ local mcp server-client agent
 参考[Antropic MCP Client Quick Start](https://modelcontextprotocol.io/quickstart/client) 修改调用接口（原文使用Anthropic API）为OpenAI的接口并调整后处理流程，增加一些Json validation
 测试使用Qwen2.5系列模型和DeepSeek-V3效果都比较稳定
 
-## 测试结果
+## 测试结果(本地MCP Server)
 ```
 python ./mcp-client/openai-agent.py
+```
+使用openai-agent-sdk
+```python
+async def local_server():
+    async with MCPServerStdio(
+        name="Web Search Server, via python",
+        params={
+            "command": "python",
+            "args": [LOCAL_SERVER_PATH],
+        },
+    ) as server:
+        tools = await server.list_tools()
+        print(f"Connected to server with tools: {tools}")
+        await run(
+            server,
+            "I want detailed information about the latest news of CNN, Fox today.",
+        )
+
+if __name__ == "__main__":
+    asyncio.run(local_server())
 ```
 Terminal output:
 ```
