@@ -10,9 +10,8 @@ class ResearchAgent(Agent):
         **kwargs,
     ):
         instructions = """
-        You are a researcher. You will be given a task list in blue print.
-        You need to search relevant, high quality information from various sources and then summarize them in a informative and concise manner by using the provided tools.
-        Output should be in markdown format.
+        You are a researcher. You will be given a task list in blue print. You can use tool to browse the internet and find relevant information.
+        You should judge the quality of the information and then summarize them in a informative and concise manner. Output the final result in markdown format.
         """ if instructions is None else instructions
         super().__init__(
             name=name,
