@@ -7,7 +7,7 @@ from serpapi import GoogleSearch
 import os
 from mcp.server.fastmcp import FastMCP
 from markdownify import markdownify as md
-
+from openai import OpenAI
 
 load_dotenv()
 
@@ -16,7 +16,7 @@ mcp = FastMCP("websearch")
 
 # SEARCH_API_KEY
 SEARCH_API_KEY = os.getenv("SEARCH_API_KEY")
-
+DS_KEY = os.getenv("DS_KEY")
 
 @mcp.tool()
 def get_general_search(query: str):
@@ -100,6 +100,7 @@ def get_video_search(query: str):
 
 @mcp.tool()
 async def web_reader(urls: list[str]):
+    """Fetch the web content from the given urls, output the content in markdown format as string"""
     task = [asyncio.create_task(web_reader_task(url)) for url in urls]
     try:
         completed_tasks, _ = await asyncio.wait(
@@ -111,6 +112,26 @@ async def web_reader(urls: list[str]):
         return "Timeout error, please try again."
     except Exception as e:
         return f"An error occurred: {e}"
+
+
+@mcp.tool()
+def summarize_webpage(web_content: str):
+    """Summarize the given webpage content in blue print format"""
+    llm = OpenAI(
+        base_url="https://api.deepseek.com",
+        api_key=DS_KEY,
+    )
+    response = llm.chat.completions.create(
+        model="deepseek-chat",
+        messages=[
+            {"role": "system", "content": "You are a helpful assistant that summarizes webpages in blue print format. Make it informative and concise."},
+            {
+                "role": "user",
+                "content": f"Summarize the following webpage: {web_content}"
+            }
+        ],
+    )
+    return response.choices[0].message.content
 
 
 async def web_reader_task(url: str):
@@ -154,4 +175,6 @@ async def web_reader_task(url: str):
 if __name__ == "__main__":
     # test = asyncio.run(web_reader(["https://www.cnn.com/", "https://www.foxnews.com/"]))
     # print(test)
+    # summary = summarize_webpage(test)
+    # print(summary)
     mcp.run(transport="stdio")
